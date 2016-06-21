@@ -577,7 +577,7 @@ function tpl_install_check_env($result = array()) {
 	{$chk_dir_html}
 </table>
 <div class="notice">
-	系统要求微擎整个安装目录必须可写, 才能使用微擎所有功能.
+	系统要求微E整个安装目录必须可写, 才能使用微E所有功能.
 </div>
 <div class="btn-box">
 	<form action="" method="post">
@@ -644,7 +644,7 @@ EOF;
 		<tr>
 			<td class="onetd"><strong>数据库名称：</strong></td>
 			<td>
-				<input name="dbname" id="dbname" type="text" value="we7" class="input-txt" />
+				<input name="dbname" id="dbname" type="text" value="we" class="input-txt" />
 			</td>
 		</tr>
 	</table>
