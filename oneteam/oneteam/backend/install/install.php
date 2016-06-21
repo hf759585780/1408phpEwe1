@@ -735,7 +735,6 @@ function tpl_install_finish() {
 	<a href="../web/index.php">访问网站首页</a>
 </div>
 EOF;
-    tpl_frame();
 }
 function tpl_resources() {
     static $res = array(
