@@ -80,14 +80,24 @@ if($action == 'env') {
     }
 
     $result['chk_dir'] = array(
-        'install',
+        'install','config/db.php'
     );
     foreach ($result['chk_dir'] as $dir) {
-        if(!local_writeable(IA_DIR . $dir)) {
-            $result['chk_'.md5($dir)] = '<font color=red>[×]不可写</font>';
-            $result['iscontinue'] = false;
-        } else {
-            $result['chk_'.md5($dir)] = '<font color=green>[√]可写</font>';
+        if($dir=='install'){
+            if(!local_writeable(IA_DIR . $dir)) {
+                $result['chk_'.md5($dir)] = '<font color=red>[×]不可写</font>';
+                $result['iscontinue'] = false;
+            } else {
+                $result['chk_'.md5($dir)] = '<font color=green>[√]可写</font>';
+            }
+        }else{
+            $a=file_put_contents(IA_DIR .$dir,'aa');
+            if($a!=2){
+                $result['chk_'.md5($dir)] = '<font color=red>[×]不可写</font>';
+                $result['iscontinue'] = false;
+            }else{
+                $result['chk_'.md5($dir)] = '<font color=green>[√]可写</font>';
+            }
         }
     }
     tpl_install_check_env($result);
