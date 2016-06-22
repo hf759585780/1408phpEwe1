@@ -35,7 +35,11 @@ use yii\helpers\Url;
             <!-- end -->
             <script type="text/javascript">
                 $(function(){
-                    $('#hnav-right').mouseover(function(){
+                    $('#hnav-right').mousemove(function(){
+                        var ur="<?=Url::toRoute(['user/nav','do'=>$do,'p_id'=>$p_id]);?>";
+                        $.get(ur,function(data){
+                            $('#hnav-ul').html(data);
+                        });
                         $(this).css('border','none');
                         $('#hnav-ul').css('display','block');
                     }).mouseout(function(){

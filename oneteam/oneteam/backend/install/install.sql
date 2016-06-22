@@ -1,4 +1,4 @@
-﻿/*
+/*
 Navicat MySQL Data Transfer
 
 Source Server         : windows.fei
@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50547
 File Encoding         : 65001
 
-Date: 2016-06-20 10:41:08
+Date: 2016-06-22 14:01:34
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -24,6 +24,8 @@ CREATE TABLE `we_custom` (
   `c_name` varchar(32) CHARACTER SET utf8 DEFAULT NULL,
   `c_type` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `f_id` int(11) DEFAULT NULL,
+  `c_key` varchar(255) DEFAULT NULL,
+  `pid` int(11) DEFAULT NULL,
   PRIMARY KEY (`c_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=gbk;
 
@@ -66,11 +68,11 @@ INSERT INTO `we_menu` VALUES ('15', '多用户管理', '4', '1', null, null);
 INSERT INTO `we_menu` VALUES ('16', '云服务', '4', '1', null, null);
 INSERT INTO `we_menu` VALUES ('17', '系统管理', '4', '1', null, null);
 INSERT INTO `we_menu` VALUES ('18', '文字回复', '5', '0', 'rule', 'display');
-INSERT INTO `we_menu` VALUES ('19', '图文回复', '5', '0', null, null);
+INSERT INTO `we_menu` VALUES ('19', '图文回复', '5', '0', '', null);
 INSERT INTO `we_menu` VALUES ('20', '音乐回复', '5', '0', null, null);
 INSERT INTO `we_menu` VALUES ('21', '自定义接口回复', '5', '0', null, null);
 INSERT INTO `we_menu` VALUES ('22', '常用服务接入', '5', '0', null, null);
-INSERT INTO `we_menu` VALUES ('23', '自定义菜单', '5', '0', null, null);
+INSERT INTO `we_menu` VALUES ('23', '自定义菜单', '5', '0', 'menu', 'designer');
 INSERT INTO `we_menu` VALUES ('24', '特殊回复', '5', '0', null, null);
 INSERT INTO `we_menu` VALUES ('25', '二维码推广', '6', '0', null, null);
 INSERT INTO `we_menu` VALUES ('26', '模块设置', '6', '0', null, null);
@@ -131,7 +133,7 @@ CREATE TABLE `we_pub` (
   `u_id` int(11) DEFAULT NULL,
   `p_rand` varchar(32) DEFAULT NULL,
   PRIMARY KEY (`p_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=gbk;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=gbk;
 
 -- ----------------------------
 -- Records of we_pub

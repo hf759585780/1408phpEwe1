@@ -180,18 +180,6 @@ use yii\helpers\Url;
 	</div>
 	</div>
 <script type="text/javascript">
-<!--
-	var codeurl = {'1':'https://mp.weixin.qq.com/cgi-bin/verifycode', '2':'https://plus.yixin.im/captcha'};
-	function verifyGen() {
-		if ($('#username').val()) {
-			var type = $('#type').val() ? $('#type').val() : 1;
-			$('#imgverify').attr('src', codeurl[type] + '?username='+$('#username').val()+'&r='+Math.round(new Date().getTime()));
-			$('#imgverify').parent().parent().parent().show();
-		} else {
-			//message('请先输入微信公众平台用户名');
-		}
-	}
-	verifyGen();
-//-->
+
 </script>
 <?php require(__DIR__ . '/../common/footer.php');?>

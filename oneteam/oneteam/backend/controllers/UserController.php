@@ -16,7 +16,7 @@ use yii\helpers\Url;
 class UserController extends Controller
 {
     function actionIndex(){
-        if(!isset(Yii::$app->session['uid'])){
+        if(!isset(Yii::$app->session['uid']) || !isset(Yii::$app->session['uname'])){
             $ur=Url::toRoute('site/login',true);
             header("location:$ur");
             //$this->redirect(array('site/login'));
@@ -43,5 +43,16 @@ class UserController extends Controller
         return $this->renderPartial('welcome',
             ['do'=>$do,'p_id'=>$p_id,'pub'=>$pub]
         );
+    }
+    function actionNav(){
+        $do=isset($_GET['do'])?$_GET['do']:'global';
+        $p=new Pub();
+        $pub=$p->sel_all();
+        $li='';
+        foreach($pub as $v){
+            $url=Url::toRoute(['user/index','do'=>$do,'p_id'=>$v['p_id']]);
+            $li.='<li><a href="'.$url.'" class="p_name" >'.$v['p_name'].'</a></li>';
+        }
+        echo $li;
     }
 }
