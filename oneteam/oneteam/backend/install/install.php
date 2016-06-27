@@ -43,7 +43,16 @@ if($action == 'env') {
     $result['env_version'] = PHP_VERSION;
     $result['env_server'] = $_SERVER['SERVER_SOFTWARE'];
     $result['env_pathroot'] = IA_DIR;
-    $result['env_uploadsize'] = @ini_get('file_uploads') ? ini_get('upload_max_filesize') : 'unknow';
+    if(@ini_get('file_uploads')){
+        $fsize=ini_get('upload_max_filesize');
+        if((int)$fsize>=8){
+            $result['env_uploadsize'] = $fsize;
+        }else{
+            $result['env_uploadsize'] = $fsize.'　<font color="red">请将附件上传大小设置为10M以上不然无法正常使用音乐回复功能</font>';
+        }
+    }else{
+        $result['env_uploadsize'] ='unknow';
+    }
     if(function_exists('disk_free_space')) {
         $result['env_diskspace'] = floor(disk_free_space(IA_DIR) / (1024*1024)).'M';
     } else {
@@ -78,12 +87,25 @@ if($action == 'env') {
             $result['iscontinue'] = false;
         }
     }
-
+    if(class_exists('Memcache')){
+        $memcache=@new Memcache;
+        if(!$memcache->connect('127.0.0.1', 11211))
+        {
+            $result['Memcache'] = '<font color=red>[×]Off</font>';
+            $result['iscontinue'] = false;
+        }else{
+            $result['Memcache'] = '<font color=green>[√]On</font>';
+            $result['iscontinue'] = true;
+        }
+    }else{
+        $result['Memcache'] = '<font color=red>[×]Off</font>';
+        $result['iscontinue'] = false;
+    }
     $result['chk_dir'] = array(
-        'install','config/db.php'
+        'upload','runtime','install','config/db.php'
     );
     foreach ($result['chk_dir'] as $dir) {
-        if($dir=='install'){
+        if($dir!='config/db.php'){
             if(!local_writeable(IA_DIR . $dir)) {
                 $result['chk_'.md5($dir)] = '<font color=red>[×]不可写</font>';
                 $result['iscontinue'] = false;
@@ -538,6 +560,11 @@ function tpl_install_check_env($result = array()) {
 		<td>PDO</td>
 		<td align="center">On </td>
 		<td>{$pdo_mysql} <small>(mysql_connect与pdo必须支持其中一个)</small></td>
+	</tr>
+	<tr>
+		<td>Memcache</td>
+		<td align="center">On </td>
+		<td>{$Memcache} <small>(本程序Memcache端口必须为11211)</small></td>
 	</tr>
 	<tr>
 		<td>allow_url_fopen</td>
