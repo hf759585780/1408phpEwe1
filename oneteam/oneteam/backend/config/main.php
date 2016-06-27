@@ -48,14 +48,14 @@ return [
                 '<controller:(post|comment)>s' => '<controller>/list',
             ],
         ],*/
-        'urlManager'=>[
+        /*'urlManager'=>[
             'class' => 'yii\web\UrlManager',//引用urlManager类
             'enablePrettyUrl' => true,//开启url美化，默认为false
             'suffix' => ".html",//启用.html后缀
             'showScriptName' => false,//隐藏index.php
             'rules' => $urls,
 
-        ],
+        ],*/
         'cache' => [
             'class' => 'yii\caching\MemCache',
             'servers' => [
