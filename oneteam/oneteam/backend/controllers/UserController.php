@@ -40,8 +40,9 @@ class UserController extends Controller
         $p_id=isset($_GET['p_id'])?$_GET['p_id']:0;
         $p=new Pub();
         $pub=$p->sel_one($p_id);
+        $ar=$p->sel_all();
         return $this->renderPartial('welcome',
-            ['do'=>$do,'p_id'=>$p_id,'pub'=>$pub]
+            ['do'=>$do,'p_id'=>$p_id,'pub'=>$pub,'ar'=>$ar]
         );
     }
     function actionNav(){

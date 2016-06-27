@@ -9,9 +9,8 @@ use yii\helpers\Url;
 </ul>
 <div class="main">
 	<form class="form-horizontal form" action="<?=Url::toRoute('rule/ins');?>" method="post" enctype="multipart/form-data" onsubmit="return formcheck(this)">
-		<input type="hidden" name="id" value="1">
 		<h4>添加规则 <small>删除，修改规则、关键字以及回复后，请提交规则以保存操作。</small></h4>
-		<table class="tb">
+		<table class="tb" id="tb">
 			<tr>
 				<th><label for="">规则名称</label></th>
 				<td>
@@ -48,8 +47,12 @@ use yii\helpers\Url;
 			<tr>
 				<th><label for="">回复类型</label></th>
 				<td>
-					<select name="module" id="module" class="span6" disabled>
-						<option value="1">基本文字回复</option>
+					<select name="module" id="module" class="span6">
+                        <?php foreach($list as $v){
+                            ?>
+                            <option value="<?=$v['t_id']?>" <?php if($v['t_id']==$module){echo 'selected';}?> ><?=$v['t_name']?></option>
+                        <?php
+                        }?>
 					</select>
 				</td>
 			</tr>
@@ -60,7 +63,7 @@ use yii\helpers\Url;
 					<span class="help-block">当用户的对话内容符合以上的关键字定义时，会触发这个回复定义。多个关键字请使用逗号隔开。</span>
 				</td>
 			</tr>
-			<tr>
+			<tr id="huifu">
 				<th><label for="">回复</label></th>
 				<td>
                     <input type="text" class="span6" placeholder="" name="content" value="" /> &nbsp;
@@ -76,4 +79,44 @@ use yii\helpers\Url;
 	</form>
 </div>
 <script type="text/html" id="keyword-item-html"></script>
+<script type="text/javascript">
+    $(function(){
+        $('#module').change(function(){
+            module=$(this).val();
+            if($(this).val()==2){
+                $('.tu').remove();
+                $('#huifu').hide();
+                var biao='<tr class="tu"><th><label for="">图文标题</label></th><td><input type="text" class="span6" placeholder="" name="tit[]" value="" /> &nbsp;</td></tr>';
+                var tu='<tr class="tu"><th><label for="">选择图片</label></th><td><input type="file" class="span6" placeholder="" name="pic[]" value="" /> &nbsp;</td></tr>';
+                var nei='<tr class="tu"><th><label for="">图文内容</label></th><td><input type="text" class="span6" placeholder="" name="nei[]" value="" /> &nbsp;</td></tr>';
+                var ur='<tr class="tu"><th><label for="">图文连接</label></th><td><input type="text" class="span6" placeholder="" name="lian[]" value="" /> &nbsp; <a href="javascript:;" title="添加子菜单" class="icon-plus-sign" title="添加菜单"></a></td></tr>';
+                $('#huifu').after(biao+tu+nei+ur);
+            }
+            if($(this).val()==1){
+                $('.tu').remove();
+                $('#huifu').show();
+            }
+            if($(this).val()==3){
+                $('.tu').remove();
+                $('#huifu').hide();
+                var biao='<tr class="tu"><th><label for="">音乐标题</label></th><td><input type="text" class="span6" placeholder="" name="tit[]" value="" /> &nbsp;</td></tr>';
+                var nei='<tr class="tu"><th><label for="">音乐名称</label></th><td><input type="text" class="span6" placeholder="" name="nei[]" value="" /> &nbsp;</td></tr>';
+                var tu='<tr class="tu"><th><label for="">选择音乐</label></th><td><input type="file" class="span6" placeholder="" name="pic[]" value="" /> &nbsp;</td></tr>';
+                $('#huifu').after(biao+nei+tu);
+            }
+        });
+        $('#module').change();
+        $('#tb').on('click','.icon-plus-sign',function(){
+            if($('.icon-plus-sign').length<3){
+                if(module==2){
+                    var biao='<tr class="tu"><th><label for="">图文标题</label></th><td><input type="text" class="span6" placeholder="" name="tit[]" value="" /> &nbsp;</td></tr>';
+                    var tu='<tr class="tu"><th><label for="">选择图片</label></th><td><input type="file" class="span6" placeholder="" name="pic[]" value="" /> &nbsp;</td></tr>';
+                    var nei='<tr class="tu"><th><label for="">图文内容</label></th><td><input type="text" class="span6" placeholder="" name="nei[]" value="" /> &nbsp;</td></tr>';
+                    var ur='<tr class="tu"><th><label for="">图文连接</label></th><td><input type="text" class="span6" placeholder="" name="lian[]" value="" /> &nbsp; <a href="javascript:;" title="添加子菜单" class="icon-plus-sign" title="添加菜单"></a></td></tr>';
+                    $(this).parent().parent().after(biao+tu+nei+ur);
+                }
+            }
+        })
+    });
+</script>
 <?php require(__DIR__ . '/../common/footer.php');?>

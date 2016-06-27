@@ -1,8 +1,4 @@
 <?php require(__DIR__ . '/../common/header.php');?>
-<ul class="nav nav-tabs">
-	<li class="active"><a href="{php echo create_url('index/welcome/' . $do);}">概况</a></li>
-	<li><a href="{php echo create_url('index/sysinfo/' . $do);}">系统信息</a></li>
-</ul>
 <div class="main">
 	<div style="padding:15px 15px 0 15px;">
         <?php
@@ -16,13 +12,13 @@
 					<th style="width:150px;">粉丝</th>
 					<th style="width:150px;">规则</th>
 					<th style="width:150px;">请求数</th>
-					<th style="width:300px;">功能</th>
-					<th style="min-width:51px;">操作</th>
 				</tr>
 			</thead>
-
+        <?php
+            foreach($ar as $v){
+                ?>
 			<tr>
-				<td>默认公众号</td>
+				<td><?=$v['p_name']?></td>
 				<!--<td>{if !empty($item['key']) && !empty($item['secret'])}<span class="label label-info">服务号{else}<span class="label label-success">订阅号{/if}</span></td>-->
                 <td><span class="label label-info">服务号</span></td>
 				<td>
@@ -41,16 +37,10 @@
 					<p>当月请求：0<p>
 					<p>当日请求：0<p>
 				</td>
-				<td class="funcmenus" weid="{$item['weid']}">
-					<p><a href="{php echo create_url('rule')}">规则管理</a>&nbsp;|&nbsp;<a href="{php echo create_url('setting/category')}">分类管理</a>&nbsp;|&nbsp;<a href="{php echo create_url('member/module')}">模块管理</a></p>
-					<p><a href="{php echo create_url('rule/post')}">添加规则</a>&nbsp;|&nbsp;<a href="{php echo create_url('menu')}">自定义菜单设置</a>&nbsp;|&nbsp;<a href="{php echo create_url('rule/system')}">系统回复设置</a></p>
-					<p><a href="{php echo create_url('site/style')}">风格管理</a>&nbsp;|&nbsp;<a href="{php echo create_url('site/nav')}">导航管理</a></p>
-				</td>
-				<td>
-					<p><a href="{php echo create_url('account/post', array('id' => $item['weid']))}">编辑</a>&nbsp;|&nbsp;<a href="{php echo create_url('account/switch', array('id' => $item['weid']))}">切换</a></p>
-				</td>
 			</tr>
-
+            <?php
+            }
+        ?>
 		</table>
 		<script type="text/javascript">
 		<!--
@@ -121,7 +111,7 @@
 			<tr><th colspan="2" class="alert alert-info">OneTeam开发团队</th></tr>
 			<tr>
 				<th style="width:250px;">版权所有</th>
-				<td><a href="http://www.we7.cc/" target="_blank"><b>OneTeam微信开发团队</b></a></td>
+				<td><a href="#"><b>OneTeam微信开发团队</b></a></td>
 			</tr>
 			<tr>
 				<th>Team 成员</th>
@@ -140,11 +130,11 @@
 			<tr>
 				<th>相关链接</th>
 				<td>
-					<a href="http://www.we7.cc/" class="lightlink2" target="_blank">公司网站</a>,
-					<a href="http://www.we7.cc/purchase.html" class="lightlink2" target="_blank">购买授权</a>,
-					<a href="http://bbs.we7.cc/forum.php?mod=forumdisplay&fid=36" class="lightlink2" target="_blank">更多模块</a>,
-					<a href="http://www.we7.cc/docs/" class="lightlink2" target="_blank">文档</a>,
-					<a href="http://bbs.we7.cc/" class="lightlink2" target="_blank">讨论区</a>
+					<a href="#" class="lightlink2">公司网站</a>,
+					<a href="#" class="lightlink2">购买授权</a>,
+					<a href="#" class="lightlink2">更多模块</a>,
+					<a href="#" class="lightlink2">文档</a>,
+					<a href="#" class="lightlink2">讨论区</a>
 				</td>
 			</tr>
 		</table>

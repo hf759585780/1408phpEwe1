@@ -23,18 +23,26 @@ class Custom extends \yii\db\ActiveRecord
         return $arr;
     }
     function access_token(){
-        $db=Yii::$app->db;
-        $sql = "SELECT * FROM ".$this->pubName().
-            " where p_id=".Yii::$app->session['p_id'];
-        $arr=$db->createCommand($sql)->queryOne();
-        $appid=$arr['appid'];
-        $appsecret=$arr['appsecret'];
-        $url='https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid='.$appid.'&secret='.$appsecret;
-        $data='';
-        $method="GET";
-        $file=$this->curlPost($url,$data,$method);
-        $new_file=json_decode($file);
-        return $new_file->access_token;
+        $cache=Yii::$app->cache;
+        $access=$cache->get(Yii::$app->session['p_id']);
+        if(!empty($access)){
+            $access_token=$access;
+        }else{
+            $db=Yii::$app->db;
+            $sql = "SELECT * FROM ".$this->pubName().
+                " where p_id=".Yii::$app->session['p_id'];
+            $arr=$db->createCommand($sql)->queryOne();
+            $appid=$arr['appid'];
+            $appsecret=$arr['appsecret'];
+            $url='https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid='.$appid.'&secret='.$appsecret;
+            $data='';
+            $method="GET";
+            $file=$this->curlPost($url,$data,$method);
+            $new_file=json_decode($file);
+            $cache->set(Yii::$app->session['p_id'],$new_file->access_token,3600);
+            $access_token=$new_file->access_token;
+        }
+        return $access_token;
     }
     function add_menu($data){
         $access_token=$this->access_token();
@@ -50,6 +58,7 @@ class Custom extends \yii\db\ActiveRecord
         $method="GET";
         $file=$this->curlPost($url,$data,$method);
         $new_file=json_decode($file,true);
+        //return $new_file;
         if(isset($new_file['errcode'])){
             return '';
         }else{
@@ -57,10 +66,16 @@ class Custom extends \yii\db\ActiveRecord
                 foreach($new_file['menu']['button'] as &$m) {
                     if(isset($m['key'])) {
                         $m['forward'] = $m['key'];
+                    }else{
+                        $m['forward']='';
                     }
-                    if(is_array($m['sub_button'])) {
+                    if(isset($m['sub_button']) && is_array($m['sub_button'])) {
                         foreach($m['sub_button'] as &$s) {
-                            $s['forward'] = $s['key'];
+                            if(isset($s['key'])){
+                                $s['forward'] = $s['key'];
+                            }else{
+                                $s['forward']='';
+                            }
                         }
                     }
                 }
@@ -74,7 +89,7 @@ class Custom extends \yii\db\ActiveRecord
         $data='';
         $method="GET";
         $file=$this->curlPost($url,$data,$method);
-        echo $file;
+        return $file;
     }
     function curlPost($url,$data,$method){
         $ch = curl_init();   //1.初始化

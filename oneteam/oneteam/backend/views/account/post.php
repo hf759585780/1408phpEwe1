@@ -8,21 +8,11 @@ use yii\helpers\Url;
 		<li><a href="{php echo create_url('account/payment', array('id' => $id))}"><i class="icon-money"></i> 编辑支付选项</a></li>
 		{else}-->
 		<li class="active"><a href="<?=Url::toRoute(['account/display','do'=>'add']);?>"><i class="icon-plus"></i> 添加公众号</a></li>
-		<li><a href="{php echo create_url('account/display')}">管理公众号</a></li>
+		<li><a href="<?=Url::toRoute(['account/display','do'=>'do']);?>">管理公众号</a></li>
 	</ul>
 	<div class="main">
 	<div class="stat">
 		<div class="stat-div">
-			<div class="navbar navbar-static-top">
-				<div class="navbar-inner">
-					<div class="pull-left">
-						<ul class="nav">
-							<li class="active"><a href="#accont-common" data-toggle="tab">普通模式</a></li>
-							<li><a href="#accont-press" data-toggle="tab">一键获取模式</a></li>
-						</ul>
-					</div>
-				</div>
-			</div>
 			<form action="<?=Url::toRoute(['account/display','do'=>'ad_do']);?>" method="post" class="form-horizontal tab-content" enctype="multipart/form-data">
 			<div id="accont-common" class="tab-pane fade active in">
 				<div class="sub-item">
@@ -82,89 +72,9 @@ use yii\helpers\Url;
 								<th><label for="">原始帐号</label></th>
 								<td>
 									<input type="text" name="original" class="span6" value="" autocomplete="off" />
-									<span class="help-block">微信公众帐号的原ID串，<a href="index.php?act=help&amp;do=wx_uid" target="blank">怎么查看微信的原始帐号？</a></span>
+									<span class="help-block">微信公众帐号的原ID串，</span>
 								</td>
 							</tr>
-							<tr>
-								<th><label for="">二维码</label></th>
-								<td>
-									<div class="fileupload fileupload-new" data-provides="fileupload">
-										<div class="fileupload-preview thumbnail" style="width: 160px; height: 160px;"></div>
-										<div>
-											<span class="btn btn-file"><span class="fileupload-new">选择图片</span><span class="fileupload-exists">更改</span><input name="qrcode" type="file" /></span>
-											<a href="#" class="btn fileupload-exists" data-dismiss="fileupload">移除</a>
-										</div>
-									</div>
-									<span class="help-block">只支持JPG图片</span>
-								</td>
-							</tr>
-							<tr>
-								<th><label for="">头像</label></th>
-								<td>
-									<div class="fileupload fileupload-new" data-provides="fileupload">
-										<div class="fileupload-preview thumbnail" style="width: 95px; height: 95px;"></div>
-										<div>
-											<span class="btn btn-file"><span class="fileupload-new">选择图片</span><span class="fileupload-exists">更改</span><input name="headimg" type="file" /></span>
-											<a href="#" class="btn fileupload-exists" data-dismiss="fileupload">移除</a>
-										</div>
-									</div>
-									<span class="help-block">只支持JPG图片</span>
-								</td>
-							</tr>
-							<tr>
-								<th></th>
-								<td>
-									<input name="submit" type="submit" value="提交" class="btn btn-primary span2" />
-								</td>
-							</tr>
-						</table>
-					</div>
-				</div>
-			</div>
-			<div id="accont-press" class="tab-pane fade">
-				<div class="sub-item">
-					<h4 class="sub-title">一键获取模式 <small>设置用户名密码后，程序会自动采集您的公众号相关信息。</small></h4>
-				</div>
-				<div class="sub-item" id="table-list">
-					<div class="sub-content">
-						<table class="tb">
-							<tr>
-								<th><label for="">公众登录用户</label></th>
-								<td>
-									<input type="text" name="wxusername" id="username" class="span6" value="" autocomplete="off" onblur="verifyGen()" />
-									<span class="help-block">请输入你的公众平台用户名</span>
-								</td>
-							</tr>
-							<tr>
-								<th><label for="">公众登录密码</label></th>
-								<td>
-									<input type="password" name="wxpassword" class="span6" value="" autocomplete="off"  />
-									<span class="help-block">请输入你的公众平台密码</span>
-								</td>
-							</tr>
-							<tr style="display:none;">
-								<th><label for="">登录验证码</label></td>
-								<td>
-									<input type="text" name="verify" class="txt grid-1 alpha pin" value="" autocomplete="off" />
-									<span class="help-inline"><img src="" id="imgverify"> <a href="javascript:;" onclick="verifyGen()">换一张</a></span>
-								</td>
-							</tr>
-							<tr>
-								<th></th>
-								<td>
-									<label class="checkbox inline"><input type="checkbox" name="islogin" value="1" checked="checked" /> 是否验证登录</label>
-									<div class="help-inline">&nbsp;勾选此选项后，提交后将验证您的微信帐号。如果有任何异常信息，请取消此选项。</div>
-								</td>
-							</tr>
-							{if !empty($wechat['username'])}
-							<tr>
-								<th></th>
-								<td>
-									<a href="{php echo create_url('account/sync', array('id' => $wechat['weid']))}">同步微信公众平台帐号信息</a>
-									<div class="help-block">填写公众号帐号密码后，如果发现信息没有同步成功，请点击此选项进行手动同步。</div>
-								</td>
-							</tr>
-							{/if}
 							<tr>
 								<th></th>
 								<td>

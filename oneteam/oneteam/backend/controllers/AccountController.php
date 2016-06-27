@@ -57,4 +57,11 @@ class AccountController extends Controller
             $m->responseMsg();
         }
     }
+    function actionDel(){
+        $do=$_GET['do'];
+        $m=new Pub();
+        $m->del_one($do);
+        $ur=Url::toRoute('account/display',true);
+        header("location:$ur");
+    }
 }

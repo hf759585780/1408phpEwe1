@@ -25,6 +25,18 @@ class Pub extends \yii\db\ActiveRecord
     {
         return '{{%rule}}';
     }
+    public static function imgName()
+    {
+        return '{{%img}}';
+    }
+    public static function customName()
+    {
+        return '{{%custom}}';
+    }
+    public static function uploadName()
+    {
+        return '{{%upload}}';
+    }
     function add_do($array){
         $key = $this->key;//私钥
         $mydes = new Des();//实例化des类
@@ -156,8 +168,26 @@ class Pub extends \yii\db\ActiveRecord
                 case "text":
                     $result = $this->receiveText($postObj);
                     break;
+                case "image":
+                    $result = $this->transmitText($postObj,'已收到您的图片信息，谢谢！');
+                    break;
+                case "voice":
+                    $result = $this->transmitText($postObj,'已收到您的语音信息，谢谢！');
+                    break;
+                case "video":
+                    $result = $this->transmitText($postObj,'已收到您的视频信息，谢谢！');
+                    break;
+                case "shortvideo":
+                    $result = $this->transmitText($postObj,'已收到您的小视频信息，谢谢！');
+                    break;
+                case "location":
+                    $result = $this->transmitText($postObj,'已收到您的地理位置信息，谢谢！');
+                    break;
+                case "link":
+                    $result = $this->transmitText($postObj,'已收到您的链接信息，谢谢！');
+                    break;
                 default:
-                    $result = "unknown msg type: ".$RX_TYPE;
+                    $result = $this->transmitText($postObj,'已收到您的'.$RX_TYPE.'信息，谢谢！');
                     break;
             }
             //$this->logger("T ".$result);
@@ -167,8 +197,33 @@ class Pub extends \yii\db\ActiveRecord
             exit;
         }
     }
+    function sel_click($key,$w_num){
+        $db=Yii::$app->db;
+        $sql = "SELECT c_id,c_type FROM ".$this->tableName()."as p".
+            " inner join ".$this->customName()."as u".
+            " on p.p_id=u.pid".
+            " where w_num='$w_num' and c_key=".$key;
+        $arr=$db->createCommand($sql)->queryOne();
+        if(!empty($arr)){
+            $sqla = "SELECT * FROM ".$this->uploadName().
+                " where cid=".$arr['c_id'];
+            $arra=$db->createCommand($sqla)->queryAll();
+            if(!empty($arra)){
+                $ar['type']=$arr['c_type'];
+                $ar['content']=$arra;
+                return $ar;
+            }
+            else{
+                return 0;
+            }
+        }
+        else{
+            return 0;
+        }
+    }
     function receiveEvent($object)
     {
+        $path=$_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].Yii::$app->request->baseUrl.'/../upload/';
         $content = "";
         switch ($object->Event)
         {
@@ -188,15 +243,21 @@ class Pub extends \yii\db\ActiveRecord
                 $content = "扫描场景 ".$object->EventKey;
                 break;
             case "CLICK":
-                switch ($object->EventKey)
-                {
-                    case "COMPANY":
-                        $content = array();
-                        $content[] = array("Title"=>"多图文1标题", "Description"=>"", "PicUrl"=>"http://discuz.comli.com/weixin/weather/icon/cartoon.jpg", "Url" =>"http://m.cnblogs.com/?u=txw1958");
-                        break;
-                    default:
-                        $content = "点击菜单：".$object->EventKey;
-                        break;
+                $arr=$this->sel_click($object->EventKey,$object->ToUserName);
+                if(is_array($arr) && !empty($arr)){
+                    if($arr['type']==1){
+                        $content=$arr['content'][0]['up_text'];
+                    }elseif($arr['type']==2){
+                        $content=array();
+                        foreach($arr['content'] as $vn){
+                            $content[] = array("Title"=>$vn['up_title'],  "Description"=>$vn['up_content'], "PicUrl"=>$path.$vn['up_img'], "Url" =>$vn['up_url']);
+                        }
+                    }elseif($arr['type']==3){
+                        $music=$arr['content'][0];
+                        $content =array("Title"=>$music['up_title'], "Description"=>$music['up_content'], "MusicUrl"=>$path.$music['up_img'], "HQMusicUrl"=>$path.$music['up_img']);
+                    }
+                }else{
+                    $content = "点击菜单：".$object->EventKey;
                 }
                 break;
             case "LOCATION":
@@ -213,7 +274,7 @@ class Pub extends \yii\db\ActiveRecord
                 break;
         }
         if(is_array($content)){
-            if (isset($content[0])){
+            if (isset($content[0]['PicUrl'])){
                 $result = $this->transmitNews($object, $content);
             }else if (isset($content['MusicUrl'])){
                 $result = $this->transmitMusic($object, $content);
@@ -234,7 +295,15 @@ class Pub extends \yii\db\ActiveRecord
             " where w_num='$w_num' and r.r_key='$key'";
         $arr=$db->createCommand($sql)->queryOne();
         if(!empty($arr)){
-            return $arr;
+            if($arr['r_type']==1){
+                return $arr;
+            }
+            else{
+                $sql = "SELECT * FROM ".$this->imgName().
+                    " where rid=$arr[r_id]";
+                $arr['child']=$db->createCommand($sql)->queryAll();
+                return $arr;
+            }
         }
         else{
             return 0;
@@ -242,49 +311,36 @@ class Pub extends \yii\db\ActiveRecord
     }
     private function receiveText($object)
     {
+        $path=$_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].Yii::$app->request->baseUrl.'/../upload/';
         $keyword = trim($object->Content);
         $arr=$this->sel_eve($object->ToUserName,$keyword);
         if($arr==0){
             $content=$this->content;
         }
         else{
-            $content=$arr['r_content'];
-        }
-        $result = $this->transmitText($object, $content);
-        //多客服人工回复模式
-        /*if (strstr($keyword, "您好") || strstr($keyword, "你好") || strstr($keyword, "在吗")){
-            $result = $this->transmitService($object);
-        }
-        //自动回复模式
-        else{
-            if (strstr($keyword, "文本")){
-                $content = "这是个文本消息";
-            }else if (strstr($keyword, "单图文")){
-                $content = array();
-                $content[] = array("Title"=>"单图文标题",  "Description"=>"单图文内容", "PicUrl"=>"http://discuz.comli.com/weixin/weather/icon/cartoon.jpg", "Url" =>"http://m.cnblogs.com/?u=txw1958");
-            }else if (strstr($keyword, "图文") || strstr($keyword, "多图文")){
-                $content = array();
-                $content[] = array("Title"=>"多图文1标题", "Description"=>"", "PicUrl"=>"http://discuz.comli.com/weixin/weather/icon/cartoon.jpg", "Url" =>"http://m.cnblogs.com/?u=txw1958");
-                $content[] = array("Title"=>"多图文2标题", "Description"=>"", "PicUrl"=>"http://d.hiphotos.bdimg.com/wisegame/pic/item/f3529822720e0cf3ac9f1ada0846f21fbe09aaa3.jpg", "Url" =>"http://m.cnblogs.com/?u=txw1958");
-                $content[] = array("Title"=>"多图文3标题", "Description"=>"", "PicUrl"=>"http://g.hiphotos.bdimg.com/wisegame/pic/item/18cb0a46f21fbe090d338acc6a600c338644adfd.jpg", "Url" =>"http://m.cnblogs.com/?u=txw1958");
-            }else if (strstr($keyword, "音乐")){
-                $content = array();
-                $content = array("Title"=>"最炫民族风", "Description"=>"歌手：凤凰传奇", "MusicUrl"=>"http://121.199.4.61/music/zxmzf.mp3", "HQMusicUrl"=>"http://121.199.4.61/music/zxmzf.mp3");
-            }else{
-                $content = date("Y-m-d H:i:s",time())."\n".$object->FromUserName."\n技术支持 方倍工作室";
-            }
-
-            if(is_array($content)){
-                if (isset($content[0]['PicUrl'])){
-                    $result = $this->transmitNews($object, $content);
-                }else if (isset($content['MusicUrl'])){
-                    $result = $this->transmitMusic($object, $content);
+            if($arr['r_type']==1){
+                $content=$arr['r_content'];
+            }elseif($arr['r_type']==2){
+                $content=array();
+                foreach($arr['child'] as $vn){
+                    $content[] = array("Title"=>$vn['i_title'],  "Description"=>$vn['i_content'], "PicUrl"=>$path.$vn['i_image'], "Url" =>$vn['i_url']);
                 }
+            }elseif($arr['r_type']==3){
+                $music=$arr['child'][0];
+                $content =array("Title"=>$music['i_title'], "Description"=>$music['i_content'], "MusicUrl"=>$path.$music['i_image'], "HQMusicUrl"=>$path.$music['i_image']);
             }else{
-                $result = $this->transmitText($object, $content);
+                $content = date("Y-m-d H:i:s",time())."\n".$object->FromUserName."\n技术支持 OneTeam微信开发团队";
             }
-        }*/
-
+        }
+        if(is_array($content)){
+            if (isset($content[0]['PicUrl'])){
+                $result = $this->transmitNews($object, $content);
+            }else if (isset($content['MusicUrl'])){
+                $result = $this->transmitMusic($object, $content);
+            }
+        }else{
+            $result = $this->transmitText($object, $content);
+        }
         return $result;
     }
 
@@ -406,4 +462,8 @@ $item_str
             file_put_contents($log_filename, date('H:i:s')." ".$log_content."\r\n", FILE_APPEND);
         }
     }*/
+    function del_one($id){
+        $db=Yii::$app->db;
+        $db->createCommand()->delete($this->tableName(), 'p_id ='.$id)->execute();
+    }
 }

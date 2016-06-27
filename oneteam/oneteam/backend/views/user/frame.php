@@ -10,10 +10,7 @@ use yii\helpers\Url;
             <ul class="hnav-main text-center unstyled pull-left" style="width:55%;">
                 <li class="hnav-parent <?php if($do=='profile'){echo 'active';}?>"><a class="hid" href="javascript:void(0)" hid="<?=Url::toRoute(['user/index','do'=>'profile','p_id'=>$p_id]);?>">当前公众号</a></li>
                 <li class="hnav-parent <?php if($do=='global'){echo 'active';}?>"><a href="<?=Url::toRoute(['user/index','do'=>'global','p_id'=>$p_id]);?>">全局设置</a></li>
-                <li class="hnav-parent"><a href="">更新缓存</a></li>
-                <li class="hnav-parent"><a href="http://bbs.we7.cc/" target="_blank">微擎论坛</a></li>
                 <li class="hnav-parent"><a href="https://mp.weixin.qq.com/" target="_blank">公众平台</a></li>
-                <li class="hnav-parent"><a href="http://bbs.we7.cc/forum.php?mod=forumdisplay&fid=38" target="_blank">帮助</a></li>
             </ul>
             <!-- 右侧管理菜单 -->
             <ul class="hnav-manage text-center unstyled pull-right">
@@ -29,21 +26,26 @@ use yii\helpers\Url;
                         ?>
                     </ul>
                 </li>
-                <li class="hnav-parent"><a href=""><i class="icon-user icon-large"></i>admin</a></li>
+                <li class="hnav-parent"><a href=""><i class="icon-user icon-large"></i><?=Yii::$app->session['uname']?></a></li>
                 <li class="hnav-parent"><a href="{php echo create_url('member/logout')}"><i class="icon-signout icon-large"></i>退出</a></li>
             </ul>
             <!-- end -->
             <script type="text/javascript">
                 $(function(){
-                    $('#hnav-right').mousemove(function(){
-                        var ur="<?=Url::toRoute(['user/nav','do'=>$do,'p_id'=>$p_id]);?>";
-                        $.get(ur,function(data){
-                            $('#hnav-ul').html(data);
-                        });
-                        $(this).css('border','none');
-                        $('#hnav-ul').css('display','block');
-                    }).mouseout(function(){
-                        $('#hnav-ul').css('display','none');
+                    var j=0;
+                    $('#hnav-right').click(function(){
+                        if(j%2==0){
+                            var ur="<?=Url::toRoute(['user/nav','do'=>$do,'p_id'=>$p_id]);?>";
+                            $.get(ur,function(data){
+                                $('#hnav-ul').html(data);
+                            });
+                            $(this).css('border','none');
+                            $('#hnav-ul').css('display','block');
+                        }
+                        else{
+                            $('#hnav-ul').css('display','none');
+                        }
+                        j++;
                     });
                     $('.p_name').click(function(){
                         var ur=$(this).attr('href');

@@ -24,9 +24,11 @@ use yii\helpers\Url;
 				if($(this).val() == 'url') {
 					$('#url-container').show();
 					$('#forward-container').hide();
+                    $('#forward-content').hide();
 				} else {
 					$('#url-container').hide();
 					$('#forward-container').show();
+                    $('#forward-content').hide();
 				}
 			}
 		});
@@ -66,10 +68,18 @@ use yii\helpers\Url;
 	}
 	function deleteMenu(o) {
 		if($(o).parent().parent().hasClass('smlist')) {
+            var key=$(o).parent().data('forward');
 			$(o).parent().remove();
 		} else {
+            key=$(o).parent().parent().parent().data('forward');
 			$(o).parent().parent().parent().remove();
 		}
+        if(key!=''){
+            var url='<?=Url::toRoute('menu/del');?>';
+            $.post(url,{key:key},function(data){
+
+            })
+        }
 	}
 	function setMenuAction(o) {
 		if(o == null) return;
@@ -95,6 +105,7 @@ use yii\helpers\Url;
 		$(o).data('do', t);
 		$(o).data('url', $('#ipt-url').val());
 		$(o).data('forward', $('#ipt-forward').val());
+            console.log($('input[type=file]'))
 	}
 	function saveMenu() {
 		if($('.span4:text').length > 3) {
@@ -180,6 +191,7 @@ use yii\helpers\Url;
 		dat = dat.slice(0,-1);
 		dat += ']';
 		$('#do').val(dat);
+
 		$('#form')[0].submit();
 	}
 </script>
@@ -189,7 +201,7 @@ use yii\helpers\Url;
 	a:hover, a:active{text-decoration:none; color:red;}
 	.hover td{padding-left:10px;}
 </style>
-<div class="main">
+<div class="main" id="mai">
 	<div class="form form-horizontal">
 		<h4>菜单设计器 <small>编辑和设置微信公众号码, 必须是服务号才能编辑自定义菜单。</small></h4>
 		<table class="tb table-striped">
@@ -197,7 +209,7 @@ use yii\helpers\Url;
 			<?php if($menu!=''){
                 foreach($menu['menu']['button'] as $val){
                     ?>
-			<tr class="hover" data-do="" data-url="" data-forward="">
+			<tr class="hover" data-do="<?php if(isset($val['type']) && $val['type']=='click'){echo 'forward';}else{echo 'view';}?>" data-url="<?php echo isset($val['url'])?$val['url']:'';?>" data-forward="<?php echo isset($val['forward'])?$val['forward']:'';?>">
 					<td>
 						<div>
 							<input type="text" class="span4" value="<?=$val['name'];?>"> &nbsp; &nbsp;
@@ -210,7 +222,7 @@ use yii\helpers\Url;
 							<?php if(isset($val['sub_button']) && !empty($val['sub_button'])){
                                 foreach($val['sub_button'] as $v){
                                     ?>
-							<div style="margin-top:20px;padding-left:80px;background:url('<?=$ad_src?>/resource/image/bg_repno.gif') no-repeat -245px -545px;" data-do="<?php echo $v['type'] == 'click' ? 'forward' : 'view';?>" data-url="" data-forward="<?=$v['forward']?>">
+							<div style="margin-top:20px;padding-left:80px;background:url('<?=$ad_src?>/resource/image/bg_repno.gif') no-repeat -245px -545px;" data-do="<?php if(isset($v['type']) && $v['type']=='click'){echo 'forward';}else{echo 'view';}?>" data-url="<?php echo isset($v['url'])?$v['url']:'';?>" data-forward="<?php echo isset($v['forward'])?$v['forward']:'';?>">
 								<input type="text" class="span3" value="<?=$v['name']?>"> &nbsp; &nbsp;
 								<a href="javascript:;" class="icon-move" title="拖动调整此菜单位置"></a> &nbsp;
 								<a href="javascript:;" onclick="setMenuAction($(this).parent());" class="icon-edit" title="设置此菜单动作"></a> &nbsp;
@@ -248,18 +260,12 @@ use yii\helpers\Url;
 						<div class="help-block">清除自定义菜单</div>
 					</td>
 				</tr>
-				<tr>
-					<td>
-						<input type="button" value="刷新" class="btn btn-primary span3" onclick="$('#do').val('refresh');$('#form')[0].submit();" />
-						<div class="help-block">重新从公众平台获取菜单信息</div>
-					</td>
-				</tr>
 			</tbody>
 		</table>
 	</div>
 </div>
-<form action="<?=Url::toRoute('menu/admenu');?>" method="post" id="form"><input id="do" name="do" type="hidden" /></form>
-<div id="dialog" class="modal hide">
+<form action="<?=Url::toRoute('menu/admenu');?>" method="post" id="form"><input id="do" name="do" type="hidden" /><input id="key" name="key" type="hidden"/></form>
+<div id="dialog" class="modal hide" style="position: absolute">
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 		<h3>选择要执行的操作</h3>
@@ -272,19 +278,120 @@ use yii\helpers\Url;
 			<label class="radio inline">
 				<input type="radio" name="ipt" value="forward"> 模拟关键字
 			</label>
-			<hr />
+            <hr/>
 			<div id="url-container">
-				<input class="span6" id="ipt-url" type="text" value="http://" />
+				<input class="span6" id="ipt-url" type="text" value="" />
 				<span class="help-block">指定点击此菜单时要跳转的链接（注：链接需加http://）</span>
 				<span class="help-block"><strong>注意: 由于接口限制. 如果你没有网页oAuth接口权限, 这里输入链接直接进入微站个人中心时将会有缺陷(有可能获得不到当前访问用户的身份信息. 如果没有oAuth接口权限, 建议你使用图文回复的形式来访问个人中心)</strong></span>
 			</div>
-			<div id="forward-container" class="hide">
-				<input class="span6" id="ipt-forward" type="text" />
-				<span class="help-block">指定点击此菜单时要执行的操作, 你可以在这里输入关键字, 那么点击这个菜单时就就相当于发送这个内容至微擎系统</span>
-				<span class="help-block"><strong>这个过程是程序模拟的, 比如这里添加关键字: 优惠券, 那么点击这个菜单是, 微擎系统相当于接受了粉丝用户的消息, 内容为"优惠券"</strong></span>
-			</div>
+            <form action="<?=Url::toRoute(['menu/adup']);?>" method="post" id="form1" enctype="multipart/form-data" target="<?=Url::toRoute(['menu/adup']);?>">
+                <div id="forward-container" class="hide">
+                    <input class="span6" id="ipt-forward" name="ipt-forward" type="text" />
+                    <span class="help-block">指定点击此菜单时要执行的操作, 你可以在这里输入关键字, 那么点击这个菜单时就就相当于发送这个内容至微E系统</span>
+                    <span class="help-block"><strong>这个过程是程序模拟的, 比如这里添加关键字: 优惠券, 那么点击这个菜单是, 微E系统相当于接受了粉丝用户的消息, 内容为"优惠券"</strong></span>
+                    <span class="help-block" style="display: inline-block;"><strong>点击下一步进行关键字回复设置：</strong></span>
+                    <p style="margin-top: 10px;text-align: center;"><input type="button" class="btn btn-primary span2" id="btn" value="下一步"/></p>
+                </div>
+                <div id="forward-content" class="hide">
+                   <table class="tb" id="tb">
+                        <tr>
+                            <th width="100"><label for="">回复类型</label></th>
+                            <td>
+                                <select name="module" id="module" class="span5">
+                                    <?php foreach($lis as $v){
+                                        ?>
+                                        <option value="<?=$v['t_id']?>"><?=$v['t_name']?></option>
+                                    <?php
+                                    }?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr id="huifu">
+                            <th width="100"><label for="">回复</label></th>
+                            <td>
+                                <input type="text" class="span5" placeholder="" name="content" value="" /> &nbsp;
+                            </td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <td>
+                                <input type="button" class="btn btn-primary span2" id="btna" value="确定"/>
+                            </td>
+                        </tr>
+                    </table>
+                  </div>
+            </form>
 		</div>
 	</div>
 	<div class="tab-pane{$current['rule']}" id="rules"></div>
 </div>
+<script type="text/javascript">
+    $(function(){
+        $('#btn').click(function(){
+            $('#url-container').hide();
+            $('#forward-container').hide();
+            $('#forward-content').show();
+
+        });
+        $('#module').change(function(){
+            module=$(this).val();
+            if($(this).val()==2){
+                $('.tu').remove();
+                $('#huifu').hide();
+                var biao='<tr class="tu"><th width="100"><label for="">图文标题</label></th><td><input type="text" class="span5" placeholder="" name="tit[]" value="" /> &nbsp;</td></tr>';
+                var tu='<tr class="tu"><th width="100"><label for="">选择图片</label></th><td><input type="file" class="span5" placeholder="" name="pic[]" value="" /> &nbsp;</td></tr>';
+                var nei='<tr class="tu"><th width="100"><label for="">图文内容</label></th><td><input type="text" class="span5" placeholder="" name="nei[]" value="" /> &nbsp;</td></tr>';
+                var ur='<tr class="tu"><th width="100"><label for="">图文连接</label></th><td><input type="text" class="span5" placeholder="" name="lian[]" value="" /> &nbsp; <a href="javascript:;" title="添加子菜单" class="icon-plus-sign" name="icon" title="添加菜单"></a></td></tr>';
+                $('#huifu').after(biao+tu+nei+ur);
+            }
+            if($(this).val()==1){
+                $('.tu').remove();
+                $('#huifu').show();
+            }
+            if($(this).val()==3){
+                $('.tu').remove();
+                $('#huifu').hide();
+                var biao='<tr class="tu"><th width="100"><label for="">音乐标题</label></th><td><input type="text" class="span5" placeholder="" name="tit[]" value="" /> &nbsp;</td></tr>';
+                var nei='<tr class="tu"><th width="100"><label for="">音乐名称</label></th><td><input type="text" class="span5" placeholder="" name="nei[]" value="" /> &nbsp;</td></tr>';
+                var tu='<tr class="tu"><th width="100"><label for="">选择音乐</label></th><td><input type="file" class="span5" placeholder="" name="pic[]" value="" /> &nbsp;</td></tr>';
+                $('#huifu').after(biao+nei+tu);
+            }
+        });
+        $('#tb').on('click','a[name=icon]',function(){
+            if($('a[name=icon]').length<3){
+                var biao='<tr class="tu"><th width="100"><label for="">图文标题</label></th><td><input type="text" class="span5" placeholder="" name="tit[]" value="" /> &nbsp;</td></tr>';
+                var tu='<tr class="tu"><th width="100"><label for="">选择图片</label></th><td><input type="file" class="span5" placeholder="" name="pic[]" value="" /> &nbsp;</td></tr>';
+                var nei='<tr class="tu"><th width="100"><label for="">图文内容</label></th><td><input type="text" class="span5" placeholder="" name="nei[]" value="" /> &nbsp;</td></tr>';
+                var ur='<tr class="tu"><th width="100"><label for="">图文连接</label></th><td><input type="text" class="span5" placeholder="" name="lian[]" value="" /> &nbsp; <a href="javascript:;" title="添加子菜单" class="icon-plus-sign" name="icon" title="添加菜单"></a></td></tr>';
+                $(this).parent().parent().after(biao+tu+nei+ur);
+            }
+            var dialog=parseInt($('#dialog').css('height'))+200;
+            var mai=parseInt($('#mai').css('height'));
+            if(dialog>mai){
+                $('#mai').css('height',dialog)
+            }
+        });
+        $('#btna').click(function(){
+            if($(':file')[0]!=undefined){
+                var num=parseInt($(':file')[0].files[0].size);
+                var max=parseInt(6291456);
+                if(num>max){
+                    alert('您选择的文件不能超过6M');
+                    return false;
+                }
+            }
+            var ifmname = 'ifm' + Math.random();
+            var ifm = $('<iframe width="0" height="0" frameborder="0" name="'+ ifmname +'">');
+            ifm.appendTo($('#mai'));
+
+            $('#form1').attr('target',ifmname);
+            $('#form1').submit();
+
+            //$('#progress').html('<img src="http://linux.zixue.it/images/loading.gif" border="0">');
+            ifm.load(function(){
+                this.remove();
+            })
+        });
+    })
+</script>
 <?php require(__DIR__ . '/../common/footer.php');?>
