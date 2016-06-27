@@ -39,20 +39,17 @@ class Pub extends \yii\db\ActiveRecord
     }
     function add_do($array){
         $key = $this->key;//私钥
-        $mydes = new Des();//实例化des类
-        $data = $array['account'];//要加密的数据----生成token
-        $desdata = $mydes->des($data,$key);//加密为二进制数据
-        //加密后的数据
-        $encode_data = $mydes->asc2hex($desdata);//二进制转16进制
+        $tok=$this->randpw(10,'ALL');
         $p_rand=$this->randpw(8,'ALL');
         $url=Url::toRoute(['account/res','do'=>$p_rand],true);
+        $url=str_replace('%2F','/',$url);
         $arr=array(
             'p_name'=>isset($array['name'])?$array['name']:'',
             'appid'=>isset($array['key'])?$array['key']:'',
             'appsecret'=>isset($array['secret'])?$array['secret']:'',
             'w_num'=>isset($array['account'])?$array['account']:'',
             'w_numone'=>isset($array['original'])?$array['original']:'',
-            'token'=>$encode_data,
+            'token'=>$tok,
             'address'=>$url,
             'p_rand'=>$p_rand,
             'u_id'=>Yii::$app->session['uid']
@@ -202,7 +199,7 @@ class Pub extends \yii\db\ActiveRecord
         $sql = "SELECT c_id,c_type FROM ".$this->tableName()."as p".
             " inner join ".$this->customName()."as u".
             " on p.p_id=u.pid".
-            " where w_num='$w_num' and c_key=".$key;
+            " where w_num='$w_num' and c_key='$key'";
         $arr=$db->createCommand($sql)->queryOne();
         if(!empty($arr)){
             $sqla = "SELECT * FROM ".$this->uploadName().

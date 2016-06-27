@@ -331,7 +331,7 @@ use yii\helpers\Url;
             $('#url-container').hide();
             $('#forward-container').hide();
             $('#forward-content').show();
-
+            $('.tu').remove();
         });
         $('#module').change(function(){
             module=$(this).val();

@@ -141,7 +141,7 @@ if($action == 'db') {
         $dbname = $_POST['dbname'];
         $dbprefix = $_POST['dbprefix'];
         $adminuser = $_POST['adminuser'];
-        $adminpwd = $_POST['adminpwd'];
+        $adminpwd = md5($_POST['adminpwd']);
         //print_r($_POST);die;
         $cookiepre = local_salt(4).'_';
         $authkey = local_salt(16).'_';

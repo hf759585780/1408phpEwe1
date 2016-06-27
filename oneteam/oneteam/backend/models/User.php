@@ -44,7 +44,7 @@ class User extends \yii\db\ActiveRecord
     }
     function sel_all($data){
         $name=$data['name'];
-        $pwd=$data['pwd'];
+        $pwd=md5($data['pwd']);
         $code=isset($data['code'])?$data['code']:'';
         if($code!=Yii::$app->session['code'] && isset(Yii::$app->session['error'])){
             return 'a';
