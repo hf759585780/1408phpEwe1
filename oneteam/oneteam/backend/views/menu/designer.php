@@ -333,6 +333,7 @@ use yii\helpers\Url;
             $('#forward-content').show();
             $('.tu').remove();
             $('#huifu').show();
+            $('#module').val(1);
         });
         $('#module').change(function(){
             module=$(this).val();
